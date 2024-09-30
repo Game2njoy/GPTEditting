@@ -8,10 +8,10 @@ import { diff_match_patch } from 'diff-match-patch';
 export const BACKEND_URL = 'http://127.0.0.1:8000/';
 
 export default function Home(){
-  const [text, setText] = useState('');
-  const [editText, setEditText] = useState('');
-  const [grammars, setGrammars] = useState([]);
-  const [diffGrammars, setDiffGrammars] = useState('');
+  const [text, setText] = useState(''); // 입력한 글의 상태
+  const [editText, setEditText] = useState(''); // 첨삭된 글의 상태
+  const [grammars, setGrammars] = useState([]); // 첨삭된 글의 목록의 상태
+  const [diffGrammars, setDiffGrammars] = useState(''); // 원래의 글과 첨삭된 글의 비교 결과 상태
 
   const grammarEdit = async () => { // 첨삭 결과 api 받기
     try {
@@ -66,12 +66,30 @@ export default function Home(){
           editText: editText,
         })
       });
+
+      await getGrammars(); // 저장 후에 첨삭 결과 다시 가져오기
       alert('저장되었습니다.');
     } catch (error) {
       alert('저장 중 오류가 발생했습니다.');
       console.error('오류', error);
     }
   };
+
+  const getGrammars = async () => { // 저장된 첨삭 결과 가져오기
+    try {
+      const response = await fetch(`${BACKEND_URL}api/grammar/`);
+
+      const data = await response.json();
+      setGrammars(data);
+    } catch (error) {
+      alert('데이터를 가져오는 중 오류가 발생했습니다.');
+      console.error('오류', error);
+    }
+  };
+
+  useEffect(() => {
+    getGrammars();
+  }, []);
 
   return (
     <div>
@@ -90,6 +108,17 @@ export default function Home(){
         </div>
       )}
       <h2>저장된 글</h2>
+      <ul>
+        {grammars.map((item) => (
+          <li key={item.id}>
+            <strong>원본:</strong> {item.oriText}
+            <br />
+            <strong>첨삭:</strong> {item.editText}
+            <br />
+            <em>{new Date(item.created_at).toLocaleString()}</em>
+          </li>
+        ))}
+      </ul>
     </div>
     
    
