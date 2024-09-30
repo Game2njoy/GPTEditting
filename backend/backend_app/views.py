@@ -1,7 +1,37 @@
 from django.shortcuts import render
+from django.conf import settings
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
-@api_view(['GET'])
-def hello_world(request):
-    return Response('Hello, World!')
+from .models import Grammar
+from .serializers import GrammarSerializer
+
+import os
+from openai import OpenAI
+
+# OpenAI 클라이언트를 API 키로 초기화
+client = OpenAI(
+    api_key=settings.OPENAI_API_KEY
+)
+
+@api_view(['POST'])
+def grammarEdit(request): # 문법 수정 api
+    try:
+        oriText = request.data.get('text')
+        if not oriText:
+            return Response({"error": "텍스트를 입력해주세요."}, status=400)
+        
+        completion = client.chat.completions.create(
+                model='gpt-4o-mini-2024-07-18',
+                messages=[
+                    {"role": "system", "content": "사용자의 글에서 문법 오류를 수정해주세요."},
+                    {"role": "user", "content": oriText}
+                ]
+            )
+        
+        editText = completion.choices[0].message.content.strip()
+        return Response({'editText': editText})
+    except Exception as e:
+        return f"오류: {str(e)}"
+    
