@@ -1,7 +1,3 @@
-import Head from "next/head";
-import Image from "next/image";
-import localFont from "next/font/local";
-import styles from "@/styles/Home.module.css";
 import React, { useState, useEffect } from 'react';
 import { diff_match_patch } from 'diff-match-patch';
 
@@ -12,8 +8,10 @@ export default function Home(){
   const [editText, setEditText] = useState(''); // 첨삭된 글의 상태
   const [grammars, setGrammars] = useState([]); // 첨삭된 글의 목록의 상태
   const [diffGrammars, setDiffGrammars] = useState(''); // 원래의 글과 첨삭된 글의 비교 결과 상태
+  const [isEditing, setIsEditing] = useState(false); // 첨삭 버튼 상태
 
   const grammarEdit = async () => { // 첨삭 결과 api 받기
+    setIsEditing(true); // 첨삭 시작
     try {
       const response = await fetch(`${BACKEND_URL}api/grammar/`, {
         method: 'POST',
@@ -37,6 +35,8 @@ export default function Home(){
     } catch (error) {
       alert('첨삭 중 오류가 발생했습니다.');
       console.error('오류', error);
+    } finally {
+      setIsEditing(false); // 첨삭 완료
     }
   };
 
@@ -92,30 +92,38 @@ export default function Home(){
   }, []);
 
   return (
-    <div>
-      <h1>AI 문법 검수 웹사이트</h1>
-      <textarea value={text} onChange={(e) => setText(e.target.value)} rows="10" cols="50" placeholder="글을 입력해주세요." />
+    <div style={{ textAlign: 'center', padding: '0 5px' }}>
+      <h1 style={{ marginTop: '10px' }}>AI 문법 검수 웹사이트</h1>
       <br />
-      <button onClick={grammarEdit}>첨삭</button>
+      <div style={{ display: 'inline-block' }}>
+        <textarea value={text} onChange={(e) => setText(e.target.value)} rows="10" cols="80" placeholder="글을 입력해주세요." style={{ display: 'block', margin: '0 auto', marginBottom: '5px', width: '100%', maxWidth: '100%' }} />
+        <div style={{ textAlign: 'right', marginTop: '5px' }}>
+          <button onClick={grammarEdit} style={{ fontSize: '14px', width: '70px', height: '30px' }} disabled={isEditing}>{isEditing ? '첨삭 중...' : '첨삭'}</button>
+        </div>
+      </div>
       {editText && (
         <div>
-          <h2>첨삭 완료!</h2>
-          <div
-            style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }}>
-            {renderDiff()}
+          <h2 style={{ marginTop: '10px' }}>첨삭 완료!</h2>
+          <div style={{ display: 'inline-block' }}>
+            <div
+              style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '5px', border: '1px solid #ddd', display: 'inline-block', margin: "5px 0px", textAlign: 'left', maxWidth: '600px' }}>
+              {renderDiff()}
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <button onClick={grammarSave} style={{ ffontSize: '14px', width: '70px', height: '30px' }}>저장</button>
+            </div>
           </div>
-          <button onClick={grammarSave}>저장</button>
         </div>
       )}
-      <h2>저장된 글</h2>
-      <ul>
+      <h2 style={{ margin: '10px 0px' }}>저장된 글</h2>
+      <ul style={{ display: 'inline-block', textAlign: 'left', maxWidth: '600px', listStyle: 'none' }}>
         {grammars.map((item) => (
-          <li key={item.id}>
+          <li key={item.id} style={{ marginBottom: '10px', backgroundColor: '#ddd', padding: '10px', borderRadius: '5px', wordWrap: 'break-word' }}>
             <strong>원본:</strong> {item.oriText}
             <br />
-            <strong>첨삭:</strong> {item.editText}
+            <strong>첨삭 결과:</strong> {item.editText}
             <br />
-            <em>{new Date(item.created_at).toLocaleString()}</em>
+            <em>저장 시간: {new Date(item.created_at).toLocaleString()}</em>
           </li>
         ))}
       </ul>
