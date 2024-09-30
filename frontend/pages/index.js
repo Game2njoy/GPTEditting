@@ -87,7 +87,7 @@ export default function Home(){
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { // 최초 렌더링
     getGrammars();
   }, []);
 

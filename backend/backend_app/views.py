@@ -26,7 +26,7 @@ def grammarEdit(request): # 문법 수정 api
             completion = client.chat.completions.create(
                     model='gpt-4o-mini-2024-07-18',
                     messages=[
-                        {"role": "system", "content": "사용자의 글에서 문법 오류를 수정해주세요."},
+                        {"role": "system", "content": "주어진 문장에서 문법 오류를 수정하고, 수정된 문장만 반환해주세요. 수정된 문장을 반환할 때, 불필요한 추가 설명 없이 단순히 문장만 출력하세요."},
                         {"role": "user", "content": oriText}
                     ]
                 )
