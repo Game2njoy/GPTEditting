@@ -43,8 +43,8 @@ def grammarEdit(request): # 문법 수정 api
  
 @api_view(['POST'])
 def grammarSave(request): # 수정된 문법 저장 api
-    oriText = request.data.get(oriText)
-    editText = request.data.get(editText)
+    oriText = request.data.get('oriText')
+    editText = request.data.get('editText')
     if not oriText or not editText:
         return Response({"error": "원본 또는 수정된 텍스트가 없습니다."}, status=400)
     

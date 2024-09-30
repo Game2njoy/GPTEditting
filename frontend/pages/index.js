@@ -13,7 +13,7 @@ export default function Home(){
   const [grammars, setGrammars] = useState([]);
   const [diffGrammars, setDiffGrammars] = useState('');
 
-  const grammarEdit = async () => {
+  const grammarEdit = async () => { // 첨삭 결과 api 받기
     try {
       const response = await fetch(`${BACKEND_URL}api/grammar/`, {
         method: 'POST',
@@ -54,6 +54,25 @@ export default function Home(){
     });
   };
 
+  const grammarSave = async () => { // 첨삭 결과 저장
+    try {
+      const response = await fetch(`${BACKEND_URL}api/saveGrammar/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          oriText: text,
+          editText: editText,
+        })
+      });
+      alert('저장되었습니다.');
+    } catch (error) {
+      alert('저장 중 오류가 발생했습니다.');
+      console.error('오류', error);
+    }
+  };
+
   return (
     <div>
       <h1>AI 문법 검수 웹사이트</h1>
@@ -67,6 +86,7 @@ export default function Home(){
             style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }}>
             {renderDiff()}
           </div>
+          <button onClick={grammarSave}>저장</button>
         </div>
       )}
       <h2>저장된 글</h2>
