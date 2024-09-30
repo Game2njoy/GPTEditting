@@ -15,33 +15,32 @@ client = OpenAI(
     api_key=settings.OPENAI_API_KEY
 )
 
-@api_view(['POST'])
+@api_view(['POST', 'GET'])
 def grammarEdit(request): # 문법 수정 api
-    try:
-        oriText = request.data.get('text')
-        if not oriText:
-            return Response({"error": "텍스트를 입력해주세요."}, status=400)
+    if request.method == 'POST':
+        try:
+            oriText = request.data.get('text')
+            if not oriText:
+                return Response({"error": "텍스트를 입력해주세요."}, status=400)
+            
+            completion = client.chat.completions.create(
+                    model='gpt-4o-mini-2024-07-18',
+                    messages=[
+                        {"role": "system", "content": "사용자의 글에서 문법 오류를 수정해주세요."},
+                        {"role": "user", "content": oriText}
+                    ]
+                )
+            
+            editText = completion.choices[0].message.content.strip()
+            return Response({'editText': editText})
+        except Exception as e:
+            return f"오류: {str(e)}"
         
-        completion = client.chat.completions.create(
-                model='gpt-4o-mini-2024-07-18',
-                messages=[
-                    {"role": "system", "content": "사용자의 글에서 문법 오류를 수정해주세요."},
-                    {"role": "user", "content": oriText}
-                ]
-            )
-        
-        editText = completion.choices[0].message.content.strip()
-        return Response({'editText': editText})
-    except Exception as e:
-        return f"오류: {str(e)}"
-    
-@api_view(['GET'])
-def grammarEdit(request): # 메인 화면
-    grammar = Grammar.objects.all().order_by('-created_at')
-    serializer = GrammarSerializer(grammar, many=True)
-    return Response(serializer.data)
-
-    
+    if request.method == 'GET':
+        grammar = Grammar.objects.all().order_by('-created_at')
+        serializer = GrammarSerializer(grammar, many=True)
+        return Response(serializer.data)
+ 
 @api_view(['POST'])
 def grammarSave(request): # 수정된 문법 저장 api
     oriText = request.data.get(oriText)
