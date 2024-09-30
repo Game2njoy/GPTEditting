@@ -3,40 +3,18 @@ import Image from "next/image";
 import localFont from "next/font/local";
 import styles from "@/styles/Home.module.css";
 import React, { useState, useEffect } from 'react';
+import { diff_match_patch } from 'diff-match-patch';
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
-
-// config.js
-export const BACKEND_URL = 'http://127.0.0.1:8000/';
-
-const Home = () => {
-  // State to store the data fetched from the backend
-  const [data, setData] = useState('');
-
-  // useEffect hook to fetch data from the backend when the component mounts
-  useEffect(() => {
-    // Fetch data from the backend API using the '/api/hello' endpoint
-    fetch(`${BACKEND_URL}api/hello`)
-      .then((response) => response.json())
-      .then((data) => setData(data));
-  }, []);
-
-  // Render the component JSX
+export default function Home(){
   return (
     <div>
-      <h1>Welcome to Fine-Tuning Chatbot!</h1>
-      <p>{data}</p>
+      <h1>AI 문법 검수 웹사이트</h1>
+      <textarea onChange={(e) => e} rows="10" cols="50" placeholder="글을 입력해주세요." />
+      <br />
+      <button>첨삭</button>
+      <h2>저장된 글</h2>
     </div>
-  );
-};
-
-export default Home;
+    
+   
+  )
+}
