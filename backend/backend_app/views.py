@@ -1,13 +1,11 @@
-from django.shortcuts import render
 from django.conf import settings
 
-from rest_framework.decorators import api_view
+from adrf.decorators import api_view  # 비동기 처리를 위한 adrf 데코레이터(Async Django REST framework)
 from rest_framework.response import Response
 
 from .models import Grammar
 from .serializers import GrammarSerializer
 
-import os
 from openai import OpenAI
 
 # OpenAI 클라이언트를 API 키로 초기화
@@ -42,13 +40,13 @@ def grammarEdit(request): # 문법 수정 api
         return Response(serializer.data)
  
 @api_view(['POST'])
-def grammarSave(request): # 수정된 문법 저장 api
+async def grammarSave(request): # 첨삭된 글 db에 비동기로 저장 api
     oriText = request.data.get('oriText')
     editText = request.data.get('editText')
     if not oriText or not editText:
         return Response({"error": "원본 또는 수정된 텍스트가 없습니다."}, status=400)
     
-    grammar = Grammar.objects.create(oriText=oriText, editText=editText)
+    grammar = await Grammar.objects.acreate(oriText=oriText, editText=editText)  # 비동기 create함수인 acreate로 데이터베이스에 비동기로 저장
 
     serializer = GrammarSerializer(grammar)
     return Response(serializer.data)

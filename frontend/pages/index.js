@@ -118,10 +118,12 @@ export default function Home(){
       <h2 style={{ margin: '10px 0px' }}>저장된 글</h2>
       <ul style={{ display: 'inline-block', textAlign: 'left', maxWidth: '600px', listStyle: 'none' }}>
         {grammars.map((item) => (
-          <li key={item.id} style={{ marginBottom: '10px', backgroundColor: '#ddd', padding: '10px', borderRadius: '5px', wordWrap: 'break-word' }}>
+          <li key={item.id} style={{ marginBottom: '10px', backgroundColor: '#ddd', padding: '10px', borderRadius: '5px', wordBreak: 'keep-all' }}>
             <strong>원본:</strong> {item.oriText}
             <br />
+            <br />
             <strong>첨삭 결과:</strong> {item.editText}
+            <br />
             <br />
             <em>저장 시간: {new Date(item.created_at).toLocaleString()}</em>
           </li>
