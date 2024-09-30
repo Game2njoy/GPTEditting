@@ -35,3 +35,16 @@ def grammarEdit(request): # 문법 수정 api
     except Exception as e:
         return f"오류: {str(e)}"
     
+@api_view(['POST'])
+def grammarSave(request): # 수정된 문법 저장 api
+    oriText = request.data.get(oriText)
+    editText = request.data.get(editText)
+    if not oriText or not editText:
+        return Response({"error": "원본 또는 수정된 텍스트가 없습니다."}, status=400)
+    
+    grammar = Grammar.objects.create(oriText=oriText, editText=editText)
+
+    serializer = GrammarSerializer(grammar)
+    return Response(serializer.data)
+
+    
