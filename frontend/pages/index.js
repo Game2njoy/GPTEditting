@@ -11,6 +11,7 @@ export default function Home(){
   const [text, setText] = useState('');
   const [editText, setEditText] = useState('');
   const [grammars, setGrammars] = useState([]);
+  const [diffGrammars, setDiffGrammars] = useState('');
 
   const grammarEdit = async () => {
     try {
@@ -25,10 +26,32 @@ export default function Home(){
       const data = await response.json();
       const edited = data.editText;
       setEditText(edited);
+
+      // diff-match-patch 사용
+      const dmp = new diff_match_patch();
+      const diff = dmp.diff_main(text, edited);
+      dmp.diff_cleanupSemantic(diff);
+      
+      setDiffGrammars(diff);
+
     } catch (error) {
       alert('첨삭 중 오류가 발생했습니다.');
       console.error('오류', error);
     }
+  };
+
+  const renderDiff = () => { // diff-match-patch 랜더링 함수
+    return diffGrammars.map((part, index) => {
+      const [type, content] = part;
+      
+      if (type === -1) { // 삭제
+        return <span key={index} style={{ backgroundColor: 'red', textDecoration: 'line-through' }}>{content}</span>;
+      } else if (type === 1) { // 추가
+        return <span key={index} style={{ backgroundColor: 'lightgreen' }}>{content}</span>;
+      } else { // 그대로
+        return <span key={index}>{content}</span>;
+      }
+    });
   };
 
   return (
@@ -37,8 +60,16 @@ export default function Home(){
       <textarea value={text} onChange={(e) => setText(e.target.value)} rows="10" cols="50" placeholder="글을 입력해주세요." />
       <br />
       <button onClick={grammarEdit}>첨삭</button>
+      {editText && (
+        <div>
+          <h2>첨삭 완료!</h2>
+          <div
+            style={{ whiteSpace: 'pre-wrap', backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '5px', border: '1px solid #ddd' }}>
+            {renderDiff()}
+          </div>
+        </div>
+      )}
       <h2>저장된 글</h2>
-      <p>{editText}</p>
     </div>
     
    
